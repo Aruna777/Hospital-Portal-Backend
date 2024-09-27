@@ -3,7 +3,6 @@ package com.LoginService.LoginService.controller;
 import com.LoginService.LoginService.dto.UserLoginDTO;
 import com.LoginService.LoginService.dto.UserRegistrationDTO;
 import com.LoginService.LoginService.mapper.UserMapper;
-import com.LoginService.LoginService.model.User;
 import com.LoginService.LoginService.reopository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +25,17 @@ public class UserController {
 
     @PostMapping("/register")
     public Mono<ResponseEntity<String>> register(@RequestBody UserRegistrationDTO registrationDto) {
+        if (registrationDto.getUsername() == null || registrationDto.getUsername().isEmpty()) {
+            return Mono.just(ResponseEntity.badRequest().body("Username cannot be null or empty"));
+        }
+
         return userRepository.findByEmail(registrationDto.getEmail())
                 .flatMap(existingUser ->
                         Mono.just(ResponseEntity.badRequest().body("User already exists with this email")))
                 .switchIfEmpty(
                         userRepository.save(userMapper.toUser(registrationDto))
                                 .map(savedUser -> ResponseEntity.ok("User registered successfully"))
+                                .onErrorReturn(ResponseEntity.internalServerError().body("Error occurred while registering user"))
                 );
     }
 

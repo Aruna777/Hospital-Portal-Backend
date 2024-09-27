@@ -50,17 +50,21 @@ public class ConsultationController {
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<ConsultationDTO>> updateConsultation(@PathVariable Integer id, @RequestBody ConsultationDTO consultationDTO) {
-        Consultation consultation = consultationMapper.toEntity(consultationDTO);
-        consultation.setConsultationId(id);
-        return consultationRepository.save(consultation)
-                .map(updatedConsultation -> ResponseEntity.ok(consultationMapper.toDto(updatedConsultation)))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+        return consultationRepository.findByConsultationId(id)
+                .flatMap(existingConsultation -> {
+                    Consultation consultation = consultationMapper.toEntity(consultationDTO);
+                    consultation.setConsultationId(existingConsultation.getConsultationId());
+
+                    return consultationRepository.save(consultation)
+                            .map(updatedConsultation -> ResponseEntity.ok(consultationMapper.toDto(updatedConsultation)));
+                })
+                .defaultIfEmpty(ResponseEntity.notFound().build()); // Return 404 if not found
     }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<String>> deleteConsultation(@PathVariable Integer id) {
         return consultationRepository.deleteById(id)
                 .then(Mono.just(ResponseEntity.ok("Deleted successfully")))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .onErrorReturn(RuntimeException.class, ResponseEntity.notFound().build());
     }
 }

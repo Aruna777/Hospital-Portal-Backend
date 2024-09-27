@@ -50,10 +50,13 @@ public class CheckupController {
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<CheckupDTO>> updateCheckup(@PathVariable Integer id, @RequestBody CheckupDTO checkupDTO) {
-        Checkup checkup = checkupMapper.toEntity(checkupDTO);
-        checkup.setCheckupId(id);
-        return checkupRepository.save(checkup)
-                .map(updatedCheckup -> ResponseEntity.ok(checkupMapper.toDTO(updatedCheckup)))
+        return checkupRepository.findByCheckupId(id)
+                .flatMap(existingCheckup -> {
+                    Checkup checkup = checkupMapper.toEntity(checkupDTO);
+                    checkup.setCheckupId(id);
+                    return checkupRepository.save(checkup)
+                            .map(updatedCheckup -> ResponseEntity.ok(checkupMapper.toDTO(updatedCheckup)));
+                })
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
@@ -61,6 +64,7 @@ public class CheckupController {
     public Mono<ResponseEntity<String>> deleteCheckup(@PathVariable Integer id) {
         return checkupRepository.deleteById(id)
                 .then(Mono.just(ResponseEntity.ok("Deleted successfully")))
+                .onErrorResume(e -> Mono.just(ResponseEntity.notFound().build()))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

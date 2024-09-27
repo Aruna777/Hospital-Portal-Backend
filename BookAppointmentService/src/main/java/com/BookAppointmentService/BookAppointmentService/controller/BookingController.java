@@ -40,12 +40,16 @@ public class BookingController {
                 .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
     }
 
+
     @PutMapping("/{id}")
     public Mono<ResponseEntity<BookingDTO>> updateBooking(@PathVariable Integer id, @RequestBody BookingDTO bookingDTO) {
-        Booking booking = bookingMapper.toEntity(bookingDTO);
-        booking.setAppointmentId(id);
-        return bookingRepository.save(booking)
-                .map(updatedBooking -> ResponseEntity.ok(bookingMapper.toDTO(updatedBooking)))
+        return bookingRepository.findByAppointmentId(id)
+                .flatMap(existingBooking -> {
+                    Booking booking = bookingMapper.toEntity(bookingDTO);
+                    booking.setAppointmentId(id);
+                    return bookingRepository.save(booking)
+                            .map(updatedBooking -> ResponseEntity.ok(bookingMapper.toDTO(updatedBooking)));
+                })
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
@@ -53,6 +57,6 @@ public class BookingController {
     public Mono<ResponseEntity<String>> deleteBooking(@PathVariable Integer id) {
         return bookingRepository.deleteById(id)
                 .then(Mono.just(ResponseEntity.ok("Deleted successfully")))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .onErrorReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Booking not found"));
     }
 }
