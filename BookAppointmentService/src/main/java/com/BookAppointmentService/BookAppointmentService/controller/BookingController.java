@@ -1,5 +1,7 @@
 package com.BookAppointmentService.BookAppointmentService.controller;
 
+import com.BookAppointmentService.BookAppointmentService.dto.BookingDTO;
+import com.BookAppointmentService.BookAppointmentService.mapper.BookingMapper;
 import com.BookAppointmentService.BookAppointmentService.model.Booking;
 import com.BookAppointmentService.BookAppointmentService.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,36 +16,43 @@ import reactor.core.publisher.Mono;
 public class BookingController {
 
     private final BookingRepository bookingRepository;
+    private final BookingMapper bookingMapper;
 
     @Autowired
-    public BookingController(BookingRepository bookingRepository) {
+    public BookingController(BookingRepository bookingRepository, BookingMapper bookingMapper) {
         this.bookingRepository = bookingRepository;
+        this.bookingMapper = bookingMapper;
     }
+
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<Booking>> getBookingById(@PathVariable Integer id) {
+    public Mono<ResponseEntity<BookingDTO>> getBookingById(@PathVariable Integer id) {
         return bookingRepository.findByAppointmentId(id)
+                .map(bookingMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Mono<ResponseEntity<String>> createBooking(@RequestBody Booking booking) {
-        return bookingRepository.save(booking)
-                .map(savedBooking -> ResponseEntity.ok("Appointment booked successfully"))
-                .defaultIfEmpty(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    public Mono<ResponseEntity<BookingDTO>> createBooking(@RequestBody BookingDTO bookingDTO) {
+        return bookingRepository.save(bookingMapper.toEntity(bookingDTO))
+                .map(savedBooking -> ResponseEntity.status(HttpStatus.CREATED)
+                        .body(bookingMapper.toDTO(savedBooking)))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
     }
+
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<String>> updateBooking(@PathVariable Integer id, @RequestBody Booking booking) {
+    public Mono<ResponseEntity<BookingDTO>> updateBooking(@PathVariable Integer id, @RequestBody BookingDTO bookingDTO) {
+        Booking booking = bookingMapper.toEntity(bookingDTO);
         booking.setAppointmentId(id);
         return bookingRepository.save(booking)
-                .map(updatedBooking -> ResponseEntity.ok("Edited appointment successfully"))
+                .map(updatedBooking -> ResponseEntity.ok(bookingMapper.toDTO(updatedBooking)))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<String>> deleteBooking(@PathVariable Integer id) {
         return bookingRepository.deleteById(id)
                 .then(Mono.just(ResponseEntity.ok("Deleted successfully")))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
-
 }

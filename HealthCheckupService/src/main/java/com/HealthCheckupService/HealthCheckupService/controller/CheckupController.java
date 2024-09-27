@@ -1,8 +1,11 @@
 package com.HealthCheckupService.HealthCheckupService.controller;
 
+import com.HealthCheckupService.HealthCheckupService.dto.CheckupDTO;
+import com.HealthCheckupService.HealthCheckupService.mapper.CheckupMapper;
 import com.HealthCheckupService.HealthCheckupService.model.Checkup;
 import com.HealthCheckupService.HealthCheckupService.repository.CheckupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -13,32 +16,44 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/checkups")
 public class CheckupController {
 
+    private final CheckupRepository checkupRepository;
+    private final CheckupMapper checkupMapper;
+
     @Autowired
-    private CheckupRepository checkupRepository;
+    public CheckupController(CheckupRepository checkupRepository, CheckupMapper checkupMapper) {
+        this.checkupRepository = checkupRepository;
+        this.checkupMapper = checkupMapper;
+    }
 
     @GetMapping
-    public Flux<Checkup> getAllCheckups() {
-        return checkupRepository.findAll();
+    public Flux<CheckupDTO> getAllCheckups() {
+        return checkupRepository.findAll()
+                .map(checkupMapper::toDTO);
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<Checkup>> getCheckupById(@PathVariable Integer id) {
+    public Mono<ResponseEntity<CheckupDTO>> getCheckupById(@PathVariable Integer id) {
         return checkupRepository.findByCheckupId(id)
+                .map(checkupMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Mono<ResponseEntity<String>> createCheckup(@RequestBody Checkup checkup) {
+    public Mono<ResponseEntity<CheckupDTO>> createCheckup(@RequestBody CheckupDTO checkupDTO) {
+        Checkup checkup = checkupMapper.toEntity(checkupDTO);
         return checkupRepository.save(checkup)
-                .map(savedCheckup -> ResponseEntity.ok("Checkup booked successfully"));
+                .map(savedCheckup -> ResponseEntity.status(HttpStatus.CREATED)
+                        .body(checkupMapper.toDTO(savedCheckup)))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<String>> updateCheckup(@PathVariable Integer id, @RequestBody Checkup checkup) {
+    public Mono<ResponseEntity<CheckupDTO>> updateCheckup(@PathVariable Integer id, @RequestBody CheckupDTO checkupDTO) {
+        Checkup checkup = checkupMapper.toEntity(checkupDTO);
         checkup.setCheckupId(id);
         return checkupRepository.save(checkup)
-                .map(updatedCheckup -> ResponseEntity.ok("Edited checkup successfully"))
+                .map(updatedCheckup -> ResponseEntity.ok(checkupMapper.toDTO(updatedCheckup)))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 

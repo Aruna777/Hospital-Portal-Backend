@@ -1,6 +1,8 @@
 package com.LoginService.LoginService.controller;
 
-
+import com.LoginService.LoginService.dto.UserLoginDTO;
+import com.LoginService.LoginService.dto.UserRegistrationDTO;
+import com.LoginService.LoginService.mapper.UserMapper;
 import com.LoginService.LoginService.model.User;
 import com.LoginService.LoginService.reopository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,38 +15,31 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    // Registration endpoint
+    @Autowired
+    public UserController(UserRepository userRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+
     @PostMapping("/register")
-    public Mono<ResponseEntity<String>> register(@RequestBody User newUser) {
-        return userRepository.findByEmail(newUser.getEmail())
-                .flatMap(existingUser -> {
-                    if (existingUser != null) {
-                        return Mono.just(ResponseEntity.badRequest().body("User already exists with this email"));
-                    } else {
-                        return userRepository.save(newUser)
-                                .map(savedUser -> ResponseEntity.ok("User registered successfully"));
-                    }
-                })
+    public Mono<ResponseEntity<String>> register(@RequestBody UserRegistrationDTO registrationDto) {
+        return userRepository.findByEmail(registrationDto.getEmail())
+                .flatMap(existingUser ->
+                        Mono.just(ResponseEntity.badRequest().body("User already exists with this email")))
                 .switchIfEmpty(
-                        userRepository.save(newUser)
+                        userRepository.save(userMapper.toUser(registrationDto))
                                 .map(savedUser -> ResponseEntity.ok("User registered successfully"))
                 );
     }
 
-    // Login endpoint
     @PostMapping("/login")
-    public Mono<ResponseEntity<String>> login(@RequestBody User loginUser) {
-        return userRepository.findByUsername(loginUser.getUsername())
-                .flatMap(user -> {
-                    if (user != null && user.getPassword().equals(loginUser.getPassword())) {
-                        return Mono.just(ResponseEntity.ok("Login successful"));
-                    } else {
-                        return Mono.just(ResponseEntity.status(401).body("Invalid username or password"));
-                    }
-                })
+    public Mono<ResponseEntity<String>> login(@RequestBody UserLoginDTO loginDto) {
+        return userRepository.findByUsername(loginDto.getUsername())
+                .filter(user -> user.getPassword().equals(loginDto.getPassword()))
+                .map(user -> ResponseEntity.ok("Login successful"))
                 .switchIfEmpty(Mono.just(ResponseEntity.status(401).body("Invalid username or password")));
     }
 }
