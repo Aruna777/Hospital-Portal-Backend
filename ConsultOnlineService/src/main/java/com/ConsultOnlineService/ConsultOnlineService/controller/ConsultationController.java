@@ -58,7 +58,7 @@ public class ConsultationController {
                     return consultationRepository.save(consultation)
                             .map(updatedConsultation -> ResponseEntity.ok(consultationMapper.toDto(updatedConsultation)));
                 })
-                .defaultIfEmpty(ResponseEntity.notFound().build()); // Return 404 if not found
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

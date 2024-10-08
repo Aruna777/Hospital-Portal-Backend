@@ -6,19 +6,18 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
-@Table("Appointment")
+@Table("appointments")
 public class Booking {
 
     @Id
     @Column("appointment_id")
     private Integer appointmentId;
 
-    @Column("patient_id")
-    private Integer patientId;
+    @Column("user_id")
+    private Integer userId;
 
     @Column("appointment_date")
     private LocalDate appointmentDate;
@@ -26,30 +25,15 @@ public class Booking {
     @Column("appointment_time")
     private LocalTime appointmentTime;
 
-    @Column("status")
-    private Status status = Status.PENDING;
-
     @Column("appointment_reason")
     private String appointmentReason;
 
-    @Column("created_at")
-    private LocalDateTime createdAt;
-
-    @Column("firstname")
-    private String firstname;
-
-    @Column("lastname")
-    private String lastname;
-
-    @Column("email")
-    private String email;
-
-    @Column("phonenumber")
-    private String phonenumber;
+    @Column("appointment_status")
+    private Status status = Status.Pending;
 
     public enum Status {
-        PENDING,
-        CONFIRMED,
-        CANCELLED
+        Pending,
+        Confirmed,
+        Cancelled
     }
 }

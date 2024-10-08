@@ -57,7 +57,7 @@ public class CheckupControllerTest {
     @Test
     public void testGetAllCheckups() {
         when(checkupRepository.findAll()).thenReturn(Flux.just(checkup));
-        when(checkupMapper.toDTO(any(Checkup.class))).thenReturn(checkupDTO);
+        when(checkupMapper.toDto(any(Checkup.class))).thenReturn(checkupDTO);
 
         StepVerifier.create(checkupController.getAllCheckups())
                 .expectNext(checkupDTO)
@@ -69,7 +69,7 @@ public class CheckupControllerTest {
     @Test
     public void testGetCheckupById_Found() {
         when(checkupRepository.findByCheckupId(CHECKUP_ID)).thenReturn(Mono.just(checkup));
-        when(checkupMapper.toDTO(any(Checkup.class))).thenReturn(checkupDTO);
+        when(checkupMapper.toDto(any(Checkup.class))).thenReturn(checkupDTO);
 
         Mono<ResponseEntity<CheckupDTO>> result = checkupController.getCheckupById(CHECKUP_ID);
 
@@ -97,7 +97,7 @@ public class CheckupControllerTest {
     public void testCreateCheckup_Success() {
         when(checkupMapper.toEntity(any(CheckupDTO.class))).thenReturn(checkup);
         when(checkupRepository.save(any(Checkup.class))).thenReturn(Mono.just(checkup));
-        when(checkupMapper.toDTO(any(Checkup.class))).thenReturn(checkupDTO);
+        when(checkupMapper.toDto(any(Checkup.class))).thenReturn(checkupDTO);
 
         Mono<ResponseEntity<CheckupDTO>> response = checkupController.createCheckup(checkupDTO);
 
@@ -127,7 +127,7 @@ public class CheckupControllerTest {
         when(checkupRepository.findByCheckupId(CHECKUP_ID)).thenReturn(Mono.just(checkup));
         when(checkupMapper.toEntity(any(CheckupDTO.class))).thenReturn(checkup);
         when(checkupRepository.save(any(Checkup.class))).thenReturn(Mono.just(checkup));
-        when(checkupMapper.toDTO(any(Checkup.class))).thenReturn(checkupDTO);
+        when(checkupMapper.toDto(any(Checkup.class))).thenReturn(checkupDTO);
 
         Mono<ResponseEntity<CheckupDTO>> response = checkupController.updateCheckup(CHECKUP_ID, checkupDTO);
 

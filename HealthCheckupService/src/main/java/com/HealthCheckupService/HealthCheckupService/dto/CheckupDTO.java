@@ -1,5 +1,6 @@
 package com.HealthCheckupService.HealthCheckupService.dto;
 
+import com.HealthCheckupService.HealthCheckupService.model.Checkup;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -7,10 +8,7 @@ import java.time.LocalDate;
 @Data
 public class CheckupDTO {
     private Integer checkupId;
-    private Integer patientId;
+    private Integer userId;
     private LocalDate checkupDate;
-    private String checkupStatus;
-    private String firstname;
-    private String lastname;
-    private String phonenumber;
+    private Checkup.CheckupStatus checkupStatus;
 }

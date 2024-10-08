@@ -28,13 +28,13 @@ public class CheckupController {
     @GetMapping
     public Flux<CheckupDTO> getAllCheckups() {
         return checkupRepository.findAll()
-                .map(checkupMapper::toDTO);
+                .map(checkupMapper::toDto);
     }
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<CheckupDTO>> getCheckupById(@PathVariable Integer id) {
         return checkupRepository.findByCheckupId(id)
-                .map(checkupMapper::toDTO)
+                .map(checkupMapper::toDto)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -44,7 +44,7 @@ public class CheckupController {
         Checkup checkup = checkupMapper.toEntity(checkupDTO);
         return checkupRepository.save(checkup)
                 .map(savedCheckup -> ResponseEntity.status(HttpStatus.CREATED)
-                        .body(checkupMapper.toDTO(savedCheckup)))
+                        .body(checkupMapper.toDto(savedCheckup)))
                 .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
     }
 
@@ -55,7 +55,7 @@ public class CheckupController {
                     Checkup checkup = checkupMapper.toEntity(checkupDTO);
                     checkup.setCheckupId(id);
                     return checkupRepository.save(checkup)
-                            .map(updatedCheckup -> ResponseEntity.ok(checkupMapper.toDTO(updatedCheckup)));
+                            .map(updatedCheckup -> ResponseEntity.ok(checkupMapper.toDto(updatedCheckup)));
                 })
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

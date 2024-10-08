@@ -3,10 +3,12 @@ package com.LoginService.LoginService.controller;
 import com.LoginService.LoginService.dto.UserLoginDTO;
 import com.LoginService.LoginService.dto.UserRegistrationDTO;
 import com.LoginService.LoginService.mapper.UserMapper;
+import com.LoginService.LoginService.model.User;
 import com.LoginService.LoginService.reopository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -45,5 +47,18 @@ public class UserController {
                 .filter(user -> user.getPassword().equals(loginDto.getPassword()))
                 .map(user -> ResponseEntity.ok("Login successful"))
                 .switchIfEmpty(Mono.just(ResponseEntity.status(401).body("Invalid username or password")));
+    }
+
+    @GetMapping
+    public Flux<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+
+    @GetMapping("/{id}")
+    public Mono<ResponseEntity<User>> getUserById(@PathVariable Integer id) {
+        return userRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 }

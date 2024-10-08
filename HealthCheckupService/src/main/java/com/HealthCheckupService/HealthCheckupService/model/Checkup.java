@@ -9,37 +9,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@Table("checkup")
+@Table("checkups") // Updated table name
 public class Checkup {
     @Id
     @Column("checkup_id")
     private Integer checkupId;
 
-    @Column("patient_id")
-    private Integer patientId;
+    @Column("user_id")
+    private Integer userId;
 
     @Column("checkup_date")
     private LocalDate checkupDate;
 
     @Column("checkup_status")
-    private CheckupStatus checkupStatus = CheckupStatus.PENDING;
-
-    @Column("created_at")
-    private LocalDateTime createdAt;
-
-    @Column("firstname")
-    private String firstname;
-
-    @Column("lastname")
-    private String lastname;
-
-    @Column("phonenumber")
-    private String phonenumber;
-
+    private CheckupStatus checkupStatus = CheckupStatus.Pending;
 
     public enum CheckupStatus {
-        COMPLETED,
-        PENDING
+        Completed,
+        Pending
     }
 }
 

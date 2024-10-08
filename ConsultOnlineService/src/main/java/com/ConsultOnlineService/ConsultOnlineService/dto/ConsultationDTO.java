@@ -9,12 +9,9 @@ import java.time.LocalTime;
 @Data
 public class ConsultationDTO {
     private Integer consultationId;
+    private Integer userId;
     private LocalDate consultationDate;
-    private LocalTime consultationStartTime;
-    private LocalTime consultationEndTime;
-    private String firstname;
-    private String lastname;
-    private String phonenumber;
+    private LocalTime consultationTime;
     private String consultationReason;
     private Consultation.Status consultationStatus;
 }

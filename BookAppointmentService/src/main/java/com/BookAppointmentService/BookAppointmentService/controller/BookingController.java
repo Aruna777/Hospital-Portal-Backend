@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -22,6 +23,12 @@ public class BookingController {
     public BookingController(BookingRepository bookingRepository, BookingMapper bookingMapper) {
         this.bookingRepository = bookingRepository;
         this.bookingMapper = bookingMapper;
+    }
+
+    @GetMapping
+    public Flux<BookingDTO> getAllBookings() {
+        return bookingRepository.findAll()
+                .map(bookingMapper::toDTO);
     }
 
     @GetMapping("/{id}")
@@ -39,7 +46,6 @@ public class BookingController {
                         .body(bookingMapper.toDTO(savedBooking)))
                 .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
     }
-
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<BookingDTO>> updateBooking(@PathVariable Integer id, @RequestBody BookingDTO bookingDTO) {

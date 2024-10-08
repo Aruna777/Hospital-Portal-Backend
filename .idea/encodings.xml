@@ -6,6 +6,7 @@
     <file url="file://$PROJECT_DIR$/HealthCheckupService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/LoginService/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/PatientProfileService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/aggregator-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/api-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/config-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eureka-server/src/main/java" charset="UTF-8" />

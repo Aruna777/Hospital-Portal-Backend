@@ -5,8 +5,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
-
 @Table("users")
 @Getter
 @Setter
@@ -24,11 +22,10 @@ public class User {
     @Column("email")
     private String email;
 
+    @Column("phone_number")
+    private String phoneNumber;
+
     @Column("password")
     private String password;
 
-    @Column("created_at")
-    private LocalDateTime createdAt;
 }
-
-
