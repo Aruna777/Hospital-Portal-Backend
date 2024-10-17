@@ -57,7 +57,7 @@ public class AggregatorService {
         Mono<UserRegistrationDTO> profileMono = fetchUserWithFallback("http://LoginService/api/users/" + user_id, new UserRegistrationDTO());
         Mono<List<BookingDTO>> appointmentsMono = fetchListWithFallback("http://BookAppointmentService/api/bookings/" + user_id, BookingDTO.class);
         Mono<List<ConsultationDTO>> consultationsMono = fetchListWithFallback("http://ConsultOnlineService/api/consultations/" + user_id, ConsultationDTO.class);
-        Mono<List<CheckupDTO>> checkupsMono = fetchListWithFallback("http://HealthCheckupService/api/checkups/" + user_id, CheckupDTO.class);
+        Mono<List<CheckupDTO>> checkupsMono = fetchListWithFallback("http://HealthCheckupService/api/checkups/user/" + user_id, CheckupDTO.class);
 
         return Mono.zip(profileMono, appointmentsMono, consultationsMono, checkupsMono)
                 .map(tuple -> new AggregatedResponse(tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()));

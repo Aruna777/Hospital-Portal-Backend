@@ -15,6 +15,7 @@ public class UserMapper {
                 registrationDto.getEmail(),
                 registrationDto.getPhoneNumber(),
                 registrationDto.getPassword()
+
         );
     }
 }

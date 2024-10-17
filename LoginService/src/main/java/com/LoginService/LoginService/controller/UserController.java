@@ -42,12 +42,23 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Mono<ResponseEntity<String>> login(@RequestBody UserLoginDTO loginDto) {
+    public Mono<ResponseEntity<Object>> login(@RequestBody UserLoginDTO loginDto) {
+        System.out.println("Login attempt for user: " + loginDto.getUsername());
+
         return userRepository.findByUsername(loginDto.getUsername())
+                .doOnNext(user -> System.out.println("Found user: " + user.getUsername()))
                 .filter(user -> user.getPassword().equals(loginDto.getPassword()))
-                .map(user -> ResponseEntity.ok("Login successful"))
+                .map(user -> ResponseEntity.ok((Object) user.getUserId()))
                 .switchIfEmpty(Mono.just(ResponseEntity.status(401).body("Invalid username or password")));
     }
+
+//    @PostMapping("/login")
+//    public Mono<ResponseEntity<Object>> login(@RequestBody UserLoginDTO loginDto) {
+//        return userRepository.findByUsername(loginDto.getUsername())
+//                .filter(user -> user.getPassword().equals(loginDto.getPassword()))
+//                .map(user -> ResponseEntity.ok( (Object) user.getUserId()))
+//                .switchIfEmpty(Mono.just(ResponseEntity.status(401).body("Invalid username or password")));
+//    }
 
     @GetMapping
     public Flux<User> getAllUsers() {

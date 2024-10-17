@@ -26,6 +26,7 @@ public class Checkup {
 
     public enum CheckupStatus {
         Completed,
+        Accepted,
         Pending
     }
 }
